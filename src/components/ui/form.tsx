@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
@@ -12,6 +13,10 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Check, ChevronsUpDown } from "lucide-react"
 
 const Form = FormProvider
 
@@ -164,6 +169,86 @@ const FormMessage = React.forwardRef<
 })
 FormMessage.displayName = "FormMessage"
 
+// New component for location selection with autofill features
+interface FormLocationFieldProps {
+  control: any;
+  name: string;
+  label: string;
+  items: string[];
+  placeholder: string;
+  onValueChange?: (value: string) => void;
+  disabled?: boolean;
+}
+
+const FormLocationField = ({
+  control,
+  name,
+  label,
+  items,
+  placeholder,
+  onValueChange,
+  disabled = false,
+}: FormLocationFieldProps) => {
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col">
+          <FormLabel>{label}</FormLabel>
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  disabled={disabled}
+                  className={cn(
+                    "w-full justify-between",
+                    !field.value && "text-muted-foreground"
+                  )}
+                >
+                  {field.value ? field.value : placeholder}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+                <CommandEmpty>No {label.toLowerCase()} found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandList>
+                    {items.map((item) => (
+                      <CommandItem
+                        key={item}
+                        value={item}
+                        onSelect={() => {
+                          field.onChange(item);
+                          if (onValueChange) onValueChange(item);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            item === field.value ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {item}
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
+
 export {
   useFormField,
   Form,
@@ -173,4 +258,5 @@ export {
   FormDescription,
   FormMessage,
   FormField,
+  FormLocationField
 }

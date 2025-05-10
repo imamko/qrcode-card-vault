@@ -24,7 +24,7 @@ const loadInitialData = () => {
     if (!users.some(user => user.role === 'admin')) {
       const adminUser = {
         id: 'admin-1',
-        email: 'admin@example.com',
+        email: 'admin@gmail.com', // Updated admin email
         name: 'Admin User',
         role: 'admin' as const
       };
@@ -73,7 +73,7 @@ export const login = (email: string, password: string): User | null => {
   // In a real app, you'd check against hashed passwords
   
   // Special case for admin login
-  if (email === 'admin@example.com' && password === 'admin123') {
+  if (email === 'admin@gmail.com' && password === 'Admin1') { // Updated admin email and password
     const adminUser = users.find(u => u.email === email && u.role === 'admin');
     if (adminUser) {
       localStorage.setItem('currentUser', JSON.stringify(adminUser));

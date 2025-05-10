@@ -33,8 +33,8 @@ export function Login() {
               <InfoIcon className="h-4 w-4 text-blue-500" />
               <AlertDescription className="text-sm text-blue-700">
                 <strong>Admin Login:</strong><br />
-                Email: admin@example.com<br />
-                Password: admin123 (auto-created)
+                Email: admin@gmail.com<br />
+                Password: Admin1 (auto-created)
               </AlertDescription>
             </Alert>
           </CardContent>
