@@ -34,7 +34,7 @@ export function Login() {
               <AlertDescription className="text-sm text-blue-700">
                 <strong>Admin Login:</strong><br />
                 Email: admin@gmail.com<br />
-                Password: Admin1 (auto-created)
+                Password: Admin1@ (auto-created)
               </AlertDescription>
             </Alert>
           </CardContent>
