@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UserData, CardData } from "@/types";
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
-import { Fullscreen, Download, IdCard } from "lucide-react";
+import { Fullscreen, Download, QrCode } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -116,24 +116,22 @@ export function VirtualCard({ userData, cardData }: VirtualCardProps) {
     }
   };
 
-  // Extract address parts if available
-  const addressParts = userData.address ? userData.address.split(',').map(part => part.trim()) : [];
-
   return (
     <div className={`transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="perspective-1000 mx-auto max-w-[400px] cursor-pointer" onClick={handleFlip}>
-        <div className={`flip-card-inner relative w-full transition-transform duration-700 ease-in-out ${isFlipped ? 'rotate-y-180' : ''}`}>
-          {/* Front Card */}
-          <div className="flip-card-front" ref={frontCardRef}>
-            <Card className="virtual-card overflow-hidden w-full rounded-xl shadow-lg">
-              <CardContent className="p-0">
-                {/* Header Banner */}
-                <div className="bg-gray-800 p-2 text-center border-b border-gray-700">
-                  <span className="text-sm font-medium text-gray-200 uppercase tracking-wider">Digital Identity Card</span>
+      <div className="relative w-full max-w-md mx-auto">
+        {/* Card with 3D effect */}
+        <div 
+          className="perspective-1000 cursor-pointer" 
+          onClick={handleFlip}
+        >
+          <div className={`flip-card-inner relative w-full transition-transform duration-700 ease-in-out ${isFlipped ? 'rotate-y-180' : ''}`}>
+            {/* Front Card */}
+            <div className="flip-card-front" ref={frontCardRef}>
+              <div className="bg-gray-900 rounded-xl shadow-2xl overflow-hidden transform hover:rotate-0 transition-all duration-300">
+                <div className="bg-purple-600 py-2 text-center text-white font-medium text-sm uppercase tracking-wider">
+                  Digital ID Card
                 </div>
-                
-                {/* Card Content */}
-                <div className="p-4 text-white bg-gray-900">
+                <div className="p-6 text-white">
                   <div className="flex items-center mb-4">
                     <Avatar className="h-16 w-16 rounded-full border-2 border-gray-700">
                       <AvatarImage src={userData.photoUrl || ""} alt={userData.name} />
@@ -141,64 +139,54 @@ export function VirtualCard({ userData, cardData }: VirtualCardProps) {
                         {userData.name ? userData.name.substring(0, 2).toUpperCase() : "ID"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="ml-3">
-                      <h3 className="text-lg font-bold">{userData.name}</h3>
-                      <p className="text-xs text-gray-400">{userData.email}</p>
+                    <div className="ml-4">
+                      <h3 className="font-bold">{userData.name}</h3>
+                      <p className="text-sm text-gray-300">{userData.email}</p>
                     </div>
                   </div>
-
-                  {/* Card Details */}
-                  <div className="grid grid-cols-1 gap-2 text-sm mb-4">
-                    <div className="flex justify-between py-1 border-b border-gray-800">
+                    
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between border-b border-gray-700 py-1">
                       <span className="text-gray-400">ID</span>
-                      <span className="font-mono text-gray-200">{userData.cardId.substring(0, 8)}</span>
+                      <span className="font-mono">{userData.cardId.substring(0, 8)}</span>
                     </div>
-                    
-                    <div className="flex justify-between py-1 border-b border-gray-800">
-                      <span className="text-gray-400">Issued</span>
-                      <span>{formatDate(cardData.createdAt)}</span>
-                    </div>
-                    
-                    <div className="flex justify-between py-1 border-b border-gray-800">
+                    <div className="flex justify-between border-b border-gray-700 py-1">
                       <span className="text-gray-400">Status</span>
                       <span className={`${cardData.isValid ? 'text-green-400' : 'text-red-400'}`}>
                         {cardData.isValid ? 'Active' : 'Inactive'}
                       </span>
                     </div>
-                    
+                    <div className="flex justify-between border-b border-gray-700 py-1">
+                      <span className="text-gray-400">Issued</span>
+                      <span>{formatDate(cardData.createdAt)}</span>
+                    </div>
                     {userData.phoneNumber && (
-                      <div className="flex justify-between py-1 border-b border-gray-800">
+                      <div className="flex justify-between border-b border-gray-700 py-1">
                         <span className="text-gray-400">Phone</span>
                         <span>{userData.phoneNumber}</span>
                       </div>
                     )}
-                    
-                    {addressParts.length > 0 && (
-                      <div className="flex justify-between py-1 border-b border-gray-800">
-                        <span className="text-gray-400">Location</span>
-                        <span className="text-right">{addressParts[addressParts.length - 1]}</span>
-                      </div>
-                    )}
                   </div>
-
+                  
                   <div className="text-xs text-center mt-4 text-gray-400">
                     Tap card to view QR code
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              
+              {/* Card Shadow */}
+              <div className="absolute inset-0 bg-gray-900 rounded-xl -z-10 transform rotate-6 scale-95 translate-x-4 translate-y-4 opacity-30 blur-sm"></div>
+            </div>
 
-          {/* Back Card - Improved for mobile */}
-          <div className="flip-card-back absolute top-0 left-0 w-full rotate-y-180 backface-hidden" ref={backCardRef}>
-            <Card className="virtual-card overflow-hidden w-full rounded-xl shadow-lg">
-              <CardContent className="p-0">
-                <div className="bg-gray-800 p-2 text-center border-b border-gray-700">
-                  <span className="text-sm font-medium text-gray-200 uppercase tracking-wider">Verification</span>
+            {/* Back Card */}
+            <div className="flip-card-back absolute top-0 left-0 w-full h-full rotate-y-180 backface-hidden" ref={backCardRef}>
+              <div className="bg-gray-900 rounded-xl shadow-2xl overflow-hidden h-full flex flex-col">
+                <div className="bg-purple-600 py-2 text-center text-white font-medium text-sm uppercase tracking-wider">
+                  Verification
                 </div>
                 
-                <div className="p-4 flex flex-col items-center justify-center text-white bg-gray-900">
-                  <div className="bg-white p-4 rounded-lg shadow-inner mb-4">
+                <div className="p-6 text-white flex-1 flex flex-col items-center justify-center">
+                  <div className="mt-2 bg-white p-4 rounded-lg mb-6">
                     <QRCode
                       value={cardData.qrCode}
                       size={isMobile ? 160 : 200}
@@ -206,20 +194,23 @@ export function VirtualCard({ userData, cardData }: VirtualCardProps) {
                     />
                   </div>
                   
-                  <h4 className="font-medium mb-1 text-center">{userData.name}</h4>
-                  <p className="text-xs text-gray-400 mb-3 text-center break-all px-2">ID: {userData.cardId}</p>
+                  <h4 className="font-medium mb-1">{userData.name}</h4>
+                  <p className="text-xs text-gray-400 mb-3">ID: {userData.cardId}</p>
                   
-                  <div className="text-xs text-gray-400 mt-2 text-center">
+                  <div className="text-xs text-gray-400 mt-2">
                     Scan to verify identity
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              
+              {/* Back Card Shadow */}
+              <div className="absolute inset-0 bg-gray-900 rounded-xl -z-10 transform rotate-6 scale-95 translate-x-4 translate-y-4 opacity-30 blur-sm"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-4 flex justify-center space-x-4">
+      <div className="mt-6 flex justify-center space-x-4">
         <Button 
           variant="outline" 
           size="sm"

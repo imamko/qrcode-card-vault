@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode, Upload, CheckCircle, UserCheck, User } from "lucide-react";
+import { QrCode, Upload, CheckCircle, UserCheck } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { scanQRCode, validateQRCode, processUploadedQRCode } from "@/lib/qr-utils";
 import { getCardByQRCode } from "@/lib/auth";
@@ -95,14 +95,6 @@ export function QRScanner() {
       toast.error("Error during validation");
     } finally {
       setValidating(false);
-    }
-  };
-
-  const handleViewUserDetails = () => {
-    if (userData) {
-      setShowValidationSuccess(false);
-      // Navigate to the users tab with the user ID as a query parameter
-      navigate('/admin?tab=users&user=' + userData.userId);
     }
   };
 
@@ -210,7 +202,7 @@ export function QRScanner() {
         )}
       </CardFooter>
 
-      {/* Enhanced Validation Success Dialog */}
+      {/* Enhanced Validation Success Dialog - without View User Details button */}
       <Dialog open={showValidationSuccess} onOpenChange={setShowValidationSuccess}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -237,7 +229,7 @@ export function QRScanner() {
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3 max-h-[50vh] overflow-auto">
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3 max-h-[60vh] overflow-auto">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-sm">ID:</span>
                     <span className="text-sm">{userData.cardId}</span>
@@ -266,14 +258,14 @@ export function QRScanner() {
                   {userData.address && (
                     <div className="flex flex-col gap-1">
                       <span className="font-medium text-sm">Address:</span>
-                      <span className="text-sm break-words">{userData.address}</span>
+                      <span className="text-sm break-words whitespace-normal">{userData.address}</span>
                     </div>
                   )}
                   
                   {userData.extraInfo && (
                     <div className="flex flex-col gap-1">
                       <span className="font-medium text-sm">Additional Info:</span>
-                      <span className="text-sm break-words">{userData.extraInfo}</span>
+                      <span className="text-sm break-words whitespace-normal">{userData.extraInfo}</span>
                     </div>
                   )}
                 </div>
@@ -283,15 +275,6 @@ export function QRScanner() {
             <p className="text-center text-sm text-muted-foreground mt-4">
               Card has been successfully validated
             </p>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mt-4" 
-              onClick={handleViewUserDetails}
-            >
-              <User className="h-4 w-4 mr-2" /> View User Details
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
