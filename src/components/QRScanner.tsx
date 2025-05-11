@@ -2,12 +2,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode, Upload } from "lucide-react";
+import { QrCode, Upload, CheckCircle, UserCheck } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { scanQRCode, validateQRCode, processUploadedQRCode } from "@/lib/qr-utils";
 import { getCardByQRCode } from "@/lib/auth";
 import { UserData } from "@/types";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 export function QRScanner() {
   const [scanning, setScanning] = useState(false);
@@ -16,6 +19,7 @@ export function QRScanner() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [uploadedQRCode, setUploadedQRCode] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [showValidationSuccess, setShowValidationSuccess] = useState(false);
 
   const handleScan = async () => {
     setScanning(true);
@@ -80,7 +84,7 @@ export function QRScanner() {
       const success = await validateQRCode(scannedData);
       
       if (success) {
-        toast.success("Card validated successfully!");
+        setShowValidationSuccess(true);
       } else {
         toast.error("Failed to validate card");
       }
@@ -90,6 +94,15 @@ export function QRScanner() {
     } finally {
       setValidating(false);
     }
+  };
+
+  // Format date to a more readable format
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   return (
@@ -186,6 +199,76 @@ export function QRScanner() {
           </Button>
         )}
       </CardFooter>
+
+      {/* Validation Success Dialog */}
+      <Dialog open={showValidationSuccess} onOpenChange={setShowValidationSuccess}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Validation Successful</DialogTitle>
+          </DialogHeader>
+          
+          <div className="flex flex-col items-center justify-center py-6 animate-fade-in">
+            <div className="rounded-full bg-green-100 p-3 mb-4">
+              <CheckCircle className="h-12 w-12 text-green-600 animate-scale-in" />
+            </div>
+            
+            {userData && (
+              <div className="w-full space-y-4">
+                <div className="flex items-center justify-center space-x-4 mb-2">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={userData.photoUrl || ""} alt={userData.name} />
+                    <AvatarFallback>
+                      {userData.name.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="text-xl font-semibold">{userData.name}</h3>
+                    <p className="text-sm text-muted-foreground">{userData.email}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-sm">ID:</span>
+                    <span className="text-sm">{userData.cardId}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-sm">Status:</span>
+                    <Badge className="bg-green-600">Valid</Badge>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-sm">Validated:</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm">{formatDate(new Date().toISOString())}</span>
+                      <UserCheck className="h-4 w-4 text-green-500" />
+                    </div>
+                  </div>
+                  
+                  {userData.phoneNumber && (
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-sm">Phone:</span>
+                      <span className="text-sm">{userData.phoneNumber}</span>
+                    </div>
+                  )}
+                  
+                  {userData.address && (
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-sm">Address:</span>
+                      <span className="text-sm text-right max-w-48 truncate">{userData.address}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Card has been successfully validated
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

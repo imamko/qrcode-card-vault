@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserData, CardData } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UsersTableProps {
   users: UserData[];
@@ -16,6 +17,7 @@ interface UsersTableProps {
 export function UsersTable({ users, cards }: UsersTableProps) {
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [showUserDialog, setShowUserDialog] = useState(false);
+  const isMobile = useIsMobile();
 
   // Format date to a more readable format
   const formatDate = (dateString: string) => {
@@ -52,29 +54,31 @@ export function UsersTable({ users, cards }: UsersTableProps) {
         <CardHeader>
           <CardTitle>All Users</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Card Status</TableHead>
-                <TableHead>Created</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <CardContent className="overflow-auto">
+          {isMobile ? (
+            <div className="space-y-4">
               {users.map((user) => {
                 const { status, validated } = getCardStatus(user.cardId);
                 
                 return (
-                  <TableRow 
-                    key={user.id} 
-                    className="cursor-pointer hover:bg-gray-50"
+                  <div 
+                    key={user.id}
+                    className="border rounded-lg p-3 cursor-pointer hover:bg-gray-50"
                     onClick={() => handleUserClick(user)}
                   >
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
+                    <div className="flex items-center gap-3 mb-2">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.photoUrl || ""} alt={user.name} />
+                        <AvatarFallback>
+                          {user.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-medium text-sm">{user.name}</h3>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
                       <div className="flex items-center gap-2">
                         <Badge variant={status === "Valid" ? "default" : "destructive"}>
                           {status}
@@ -83,20 +87,65 @@ export function UsersTable({ users, cards }: UsersTableProps) {
                           <UserCheck className="h-4 w-4 text-green-500" />
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell>{formatDate(user.createdAt)}</TableCell>
-                  </TableRow>
+                      <div className="text-xs text-muted-foreground">
+                        {formatDate(user.createdAt)}
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
               {users.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                    No users registered yet
-                  </TableCell>
-                </TableRow>
+                <div className="text-center py-6 text-muted-foreground">
+                  No users registered yet
+                </div>
               )}
-            </TableBody>
-          </Table>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Card Status</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => {
+                  const { status, validated } = getCardStatus(user.cardId);
+                  
+                  return (
+                    <TableRow 
+                      key={user.id} 
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => handleUserClick(user)}
+                    >
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={status === "Valid" ? "default" : "destructive"}>
+                            {status}
+                          </Badge>
+                          {validated && (
+                            <UserCheck className="h-4 w-4 text-green-500" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>
+                    </TableRow>
+                  );
+                })}
+                {users.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                      No users registered yet
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
