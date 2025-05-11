@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,12 +25,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 
 export function Admin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(getCurrentUser());
   const [users, setUsers] = useState(getAllUsers());
   const [cards, setCards] = useState<CardData[]>([]);
   const [pendingRequests, setPendingRequests] = useState<ProfileUpdateRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<ProfileUpdateRequest | null>(null);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("requests");
   
   useEffect(() => {
     if (!user) {
@@ -50,7 +52,14 @@ export function Admin() {
     // Get pending update requests
     setPendingRequests(getPendingUpdateRequests());
     
-  }, [user, navigate]);
+    // Check URL parameters for tab and user ID
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['requests', 'scanner', 'users'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+    
+  }, [user, navigate, location.search]);
   
   // Refresh data when tab changes
   const refreshData = () => {
@@ -94,6 +103,11 @@ export function Admin() {
   if (!user) {
     return null;
   }
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    refreshData();
+  };
   
   return (
     <ProtectedRoute allowedRole="admin">
@@ -113,7 +127,7 @@ export function Admin() {
             </Alert>
           )}
           
-          <Tabs defaultValue="requests" onValueChange={refreshData}>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsList className="mb-6">
               <TabsTrigger value="requests">
                 Update Requests

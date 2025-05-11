@@ -101,6 +101,7 @@ export function QRScanner() {
   const handleViewUserDetails = () => {
     if (userData) {
       setShowValidationSuccess(false);
+      // Navigate to the users tab with the user ID as a query parameter
       navigate('/admin?tab=users&user=' + userData.userId);
     }
   };
