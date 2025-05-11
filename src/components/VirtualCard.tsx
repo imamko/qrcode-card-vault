@@ -10,6 +10,7 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toast } from "@/components/ui/sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VirtualCardProps {
   userData: UserData;
@@ -22,6 +23,7 @@ export function VirtualCard({ userData, cardData }: VirtualCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const frontCardRef = useRef<HTMLDivElement>(null);
   const backCardRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -187,7 +189,7 @@ export function VirtualCard({ userData, cardData }: VirtualCardProps) {
             </Card>
           </div>
 
-          {/* Back Card */}
+          {/* Back Card - Improved for mobile */}
           <div className="flip-card-back absolute top-0 left-0 w-full rotate-y-180 backface-hidden" ref={backCardRef}>
             <Card className="virtual-card overflow-hidden w-full rounded-xl shadow-lg">
               <CardContent className="p-0">
@@ -195,17 +197,17 @@ export function VirtualCard({ userData, cardData }: VirtualCardProps) {
                   <span className="text-sm font-medium text-gray-200 uppercase tracking-wider">Verification</span>
                 </div>
                 
-                <div className="p-6 flex flex-col items-center justify-center text-white bg-gray-900">
+                <div className="p-4 flex flex-col items-center justify-center text-white bg-gray-900">
                   <div className="bg-white p-4 rounded-lg shadow-inner mb-4">
                     <QRCode
                       value={cardData.qrCode}
-                      size={48}
+                      size={isMobile ? 160 : 200}
                       level="M"
                     />
                   </div>
                   
-                  <h4 className="font-medium mb-1">{userData.name}</h4>
-                  <p className="text-xs text-gray-400 mb-3">ID: {userData.cardId}</p>
+                  <h4 className="font-medium mb-1 text-center">{userData.name}</h4>
+                  <p className="text-xs text-gray-400 mb-3 text-center break-all px-2">ID: {userData.cardId}</p>
                   
                   <div className="text-xs text-gray-400 mt-2 text-center">
                     Scan to verify identity

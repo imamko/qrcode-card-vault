@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode, Upload, CheckCircle, UserCheck } from "lucide-react";
+import { QrCode, Upload, CheckCircle, UserCheck, User } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { scanQRCode, validateQRCode, processUploadedQRCode } from "@/lib/qr-utils";
 import { getCardByQRCode } from "@/lib/auth";
@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 export function QRScanner() {
   const [scanning, setScanning] = useState(false);
@@ -20,6 +21,7 @@ export function QRScanner() {
   const [uploadedQRCode, setUploadedQRCode] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [showValidationSuccess, setShowValidationSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleScan = async () => {
     setScanning(true);
@@ -93,6 +95,13 @@ export function QRScanner() {
       toast.error("Error during validation");
     } finally {
       setValidating(false);
+    }
+  };
+
+  const handleViewUserDetails = () => {
+    if (userData) {
+      setShowValidationSuccess(false);
+      navigate('/admin?tab=users&user=' + userData.userId);
     }
   };
 
@@ -200,7 +209,7 @@ export function QRScanner() {
         )}
       </CardFooter>
 
-      {/* Validation Success Dialog */}
+      {/* Enhanced Validation Success Dialog */}
       <Dialog open={showValidationSuccess} onOpenChange={setShowValidationSuccess}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -209,7 +218,7 @@ export function QRScanner() {
           
           <div className="flex flex-col items-center justify-center py-6 animate-fade-in">
             <div className="rounded-full bg-green-100 p-3 mb-4">
-              <CheckCircle className="h-12 w-12 text-green-600 animate-scale-in" />
+              <CheckCircle className="h-12 w-12 text-green-600 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]" />
             </div>
             
             {userData && (
@@ -227,7 +236,7 @@ export function QRScanner() {
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3 max-h-[50vh] overflow-auto">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-sm">ID:</span>
                     <span className="text-sm">{userData.cardId}</span>
@@ -242,7 +251,7 @@ export function QRScanner() {
                     <span className="font-medium text-sm">Validated:</span>
                     <div className="flex items-center gap-1">
                       <span className="text-sm">{formatDate(new Date().toISOString())}</span>
-                      <UserCheck className="h-4 w-4 text-green-500" />
+                      <UserCheck className="h-4 w-4 text-green-500 animate-scale-in" />
                     </div>
                   </div>
                   
@@ -254,9 +263,16 @@ export function QRScanner() {
                   )}
                   
                   {userData.address && (
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-1">
                       <span className="font-medium text-sm">Address:</span>
-                      <span className="text-sm text-right max-w-48 truncate">{userData.address}</span>
+                      <span className="text-sm break-words">{userData.address}</span>
+                    </div>
+                  )}
+                  
+                  {userData.extraInfo && (
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium text-sm">Additional Info:</span>
+                      <span className="text-sm break-words">{userData.extraInfo}</span>
                     </div>
                   )}
                 </div>
@@ -266,6 +282,15 @@ export function QRScanner() {
             <p className="text-center text-sm text-muted-foreground mt-4">
               Card has been successfully validated
             </p>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-4" 
+              onClick={handleViewUserDetails}
+            >
+              <User className="h-4 w-4 mr-2" /> View User Details
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
