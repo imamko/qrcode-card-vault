@@ -74,7 +74,7 @@ export const login = (email: string, password: string): User | null => {
   // In a real app, you'd check against hashed passwords
   
   // Special case for admin login
-  if (email === 'admin@gmail.com' && password === 'Admin1@') { // Updated admin password here
+  if (email === 'admin@gmail.com' && password === 'Admin123@') { // Updated admin password here
     const adminUser = users.find(u => u.email === email && u.role === 'admin');
     if (adminUser) {
       localStorage.setItem('currentUser', JSON.stringify(adminUser));
